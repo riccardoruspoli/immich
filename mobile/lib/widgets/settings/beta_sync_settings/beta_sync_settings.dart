@@ -32,9 +32,8 @@ class BetaSyncSettings extends HookConsumerWidget {
       final localAlbumCounts = localAlbumService.getCount();
       final remoteAlbumCounts = remoteAlbumService.getCount();
       final memoryCount = memoryService.getCount();
-      final getLocalHashedCount = assetService.getLocalHashedCount();
 
-      return await Future.wait([assetCounts, localAlbumCounts, remoteAlbumCounts, memoryCount, getLocalHashedCount]);
+      return await Future.wait([assetCounts, localAlbumCounts, remoteAlbumCounts, memoryCount]);
     }
 
     Future<void> resetDatabase() async {
@@ -181,7 +180,6 @@ class BetaSyncSettings extends HookConsumerWidget {
         final localAlbumCount = snapshot.data![1]! as int;
         final remoteAlbumCount = snapshot.data![2]! as int;
         final memoryCount = snapshot.data![3]! as int;
-        final localHashedCount = snapshot.data![4]! as int;
 
         return Padding(
           padding: const EdgeInsets.only(top: 16, bottom: 32),
@@ -253,10 +251,17 @@ class BetaSyncSettings extends HookConsumerWidget {
                       ),
                     ),
                     Expanded(
-                      child: EntitiyCountTile(
-                        label: "hashed_assets".t(context: context),
-                        count: localHashedCount,
-                        icon: Icons.tag,
+                      child: Consumer(
+                        builder: (context, ref, _) {
+                          final localHashedCount = ref
+                              .watch(localHashedCountProvider)
+                              .maybeWhen(data: (v) => v, orElse: () => 0);
+                          return EntitiyCountTile(
+                            label: "hashed_assets".t(context: context),
+                            count: localHashedCount,
+                            icon: Icons.tag,
+                          );
+                        },
                       ),
                     ),
                   ],
